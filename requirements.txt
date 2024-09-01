@@ -6,3 +6,4 @@ uuid
 librosa
 scipy
 sounddevice
+socketio
