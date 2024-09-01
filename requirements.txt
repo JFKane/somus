@@ -1,0 +1,8 @@
+uvicorn
+fastapi
+cython
+numpy
+uuid
+librosa
+scipy
+sounddevice
