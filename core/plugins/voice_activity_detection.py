@@ -1,4 +1,5 @@
 import numpy as np
+from typing import Dict, Any
 
 def voice_activity_detection(audio_chunk: np.ndarray, energy_threshold: float = 0.1) -> Dict[str, Any]:
     """

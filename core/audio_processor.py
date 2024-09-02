@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from typing import Dict, Any, Callable
+from typing import Dict, Any, Callable, List 
 import numpy as np
 import sounddevice as sd
 

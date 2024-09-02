@@ -14,18 +14,16 @@ def get_extensions():
     return extensions
 
 setup(
-    name='audio_testing_app',
+    name='somus',
     version='0.1.0',
-    description='Audio Testing Application with plugin support',
-    author='Your Name',
-    author_email='your.email@example.com',
-    ext_modules=cythonize(get_extensions()),
     packages=find_packages(),
+    ext_modules=cythonize(get_extensions()),
     package_data={
-        'core.plugins': ['*.py'],  # Include all Python files in the plugins directory
+        'core.plugins': ['*.py'],
     },
     include_package_data=True,
     install_requires=[
+        # List your requirements here
         'fastapi',
         'uvicorn',
         'python-socketio',
@@ -33,13 +31,6 @@ setup(
         'scipy',
         'librosa',
         'sounddevice',
-        # Add any other dependencies your application needs
+        # Add any other dependencies
     ],
-    classifiers=[
-        'Development Status :: 3 - Alpha',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 3.10',
-    ],
-    python_requires='>=3.10',
 )
