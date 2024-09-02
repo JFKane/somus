@@ -69,6 +69,7 @@ async def update_clients(data):
 
 @app.post("/start_analysis")
 async def start_analysis(config: AnalysisConfig):
+    logger.info(f"Received analysis request: {config}")
     try:
         logger.info(f"Received analysis config: {config.dict()}")
         task_id = str(uuid.uuid4())

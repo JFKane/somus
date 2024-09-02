@@ -10,6 +10,7 @@ class PluginManager:
         self.plugin_dir = plugin_dir
         self.plugins: Dict[str, Any] = {}
         self.load_plugins()
+        logger.info(f"Initialized PluginManager with plugins: {list(self.plugins.keys())}")
 
     def load_plugins(self):
         logger.info(f"Loading plugins from directory: {self.plugin_dir}")
