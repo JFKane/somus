@@ -3,6 +3,9 @@ from typing import Dict, Any
 from jinja2 import Environment, FileSystemLoader
 import json
 
+def format_json(data):
+    return json.dumps(data, indent=2, sort_keys=True)
+
 def generate_html_report(task_id: str, results: Dict[str, Any]) -> str:
     """
     Generate an HTML report for the audio analysis results.
@@ -17,6 +20,10 @@ def generate_html_report(task_id: str, results: Dict[str, Any]) -> str:
     
     # Set up Jinja2 environment
     env = Environment(loader=FileSystemLoader('core/templates'))
+    
+    # Add the custom function to the environment
+    env.filters['format_json'] = format_json
+    
     template = env.get_template('report_template.html')
     
     # Prepare data for the template
@@ -36,10 +43,3 @@ def generate_html_report(task_id: str, results: Dict[str, Any]) -> str:
         f.write(html_content)
     
     return report_path
-
-# Helper function to format JSON for better readability in the HTML report
-def format_json(data):
-    return json.dumps(data, indent=2, sort_keys=True)
-
-# Make the helper function available to the Jinja2 template
-Environment.globals['format_json'] = format_json

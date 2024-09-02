@@ -16,12 +16,12 @@
     <h3>Status: {{ status }}</h3>
     
     <h2>Configuration</h2>
-    <pre>{{ format_json(config) }}</pre>
+    <pre>{{ config | format_json }}</pre>
     
     <h2>Results</h2>
     {% for result in results %}
         <h3>Analysis {{ loop.index }}</h3>
-        <pre>{{ format_json(result) }}</pre>
+        <pre>{{ result | format_json }}</pre>
     {% endfor %}
 </body>
 </html>
