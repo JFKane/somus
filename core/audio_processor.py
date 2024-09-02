@@ -1,8 +1,10 @@
 import asyncio
 import logging
-from typing import Dict, Any, Callable, List 
+from typing import Dict, Any, Callable, List
 import numpy as np
 import sounddevice as sd
+import soundfile as sf
+import librosa
 
 logger = logging.getLogger(__name__)
 
@@ -20,20 +22,25 @@ class AudioProcessor:
         }
 
         try:
-            # This is a placeholder for actual audio processing
-            # In a real implementation, you'd handle different audio sources (file, stream, etc.)
-            sample_rate = config.get('sample_rate', 44100)
+            audio_resource = config['audio_resource']
+            if isinstance(audio_resource, dict):
+                if audio_resource['type'] == 'local_file':
+                    audio_path = audio_resource['path']
+                    audio, sample_rate = librosa.load(audio_path, sr=config.get('sample_rate', 44100))
+                else:
+                    raise ValueError(f"Unsupported audio resource type: {audio_resource['type']}")
+            else:
+                # Assume it's a URL if it's a string
+                audio_path = audio_resource
+                audio, sample_rate = librosa.load(audio_path, sr=config.get('sample_rate', 44100))
+
             chunk_size = config.get('chunk_size', 1024)
-            duration = 10  # Process 10 seconds of audio for this example
+            frequency = config.get('frequency', 1)
 
-            def audio_callback(indata, frames, time, status):
-                if status:
-                    logger.warning(f"Audio callback status: {status}")
-                audio_chunk = indata.copy()
-                asyncio.create_task(self.process_chunk(audio_chunk, config['plugins'], task_id, update_callback))
-
-            with sd.InputStream(samplerate=sample_rate, channels=1, callback=audio_callback, blocksize=chunk_size):
-                await asyncio.sleep(duration)
+            for i in range(0, len(audio), chunk_size):
+                chunk = audio[i:i+chunk_size]
+                await self.process_chunk(chunk, config['plugins'], task_id, update_callback)
+                await asyncio.sleep(frequency)
 
         except Exception as e:
             logger.error(f"Error in audio processing task {task_id}: {str(e)}")

@@ -3,7 +3,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Union
 import uuid
 import asyncio
 import socketio
@@ -36,8 +36,12 @@ logger = logging.getLogger(__name__)
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+class AudioResource(BaseModel):
+    type: str
+    path: str
+
 class AnalysisConfig(BaseModel):
-    audio_resource: str
+    audio_resource: Union[str, AudioResource]
     plugins: List[Dict[str, Any]]
     sample_rate: int = 44100
     chunk_size: int = 1024
