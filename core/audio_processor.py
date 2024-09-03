@@ -23,6 +23,8 @@ class AudioProcessor:
 
         try:
             audio_resource = config['audio_resource']
+            logger.info(f"Loading audio from: {audio_resource}")
+
             if isinstance(audio_resource, dict):
                 if audio_resource['type'] == 'local_file':
                     audio_path = audio_resource['path']
@@ -36,11 +38,16 @@ class AudioProcessor:
 
             chunk_size = config.get('chunk_size', 1024)
             frequency = config.get('frequency', 1)
+            logger.info(f"Audio loaded. Processing {len(audio)} samples")
+
 
             for i in range(0, len(audio), chunk_size):
                 chunk = audio[i:i+chunk_size]
                 await self.process_chunk(chunk, config['plugins'], task_id, update_callback)
                 await asyncio.sleep(frequency)
+            
+            logger.info(f"Finished processing audio for task: {task_id}")
+            self.tasks[task_id]["status"] = "completed"
 
         except Exception as e:
             logger.error(f"Error in audio processing task {task_id}: {str(e)}")
@@ -71,12 +78,21 @@ class AudioProcessor:
 
     def stop_task(self, task_id: str) -> bool:
         if task_id in self.tasks:
-            self.tasks[task_id]["status"] = "stopped"
-            return True
+            current_status = self.tasks[task_id]["status"]
+            if current_status == "running":
+                self.tasks[task_id]["status"] = "stopped"
+                logger.info(f"Task {task_id} stopped")
+                return True
+            else:
+                logger.info(f"Task {task_id} already in state: {current_status}")
+                return False
+        logger.warning(f"Task {task_id} not found")
         return False
 
     def get_task_status(self, task_id: str) -> str:
-        return self.tasks.get(task_id, {}).get("status")
+        status = self.tasks.get(task_id, {}).get("status", "not_found")
+        logger.info(f"Status for task {task_id}: {status}")
+        return status
 
     def get_report(self, task_id: str) -> Dict[str, Any]:
         return self.tasks.get(task_id)

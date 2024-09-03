@@ -89,6 +89,7 @@ async def stop_analysis(task: TaskID):
 @app.get("/status/{task_id}")
 async def get_status(task_id: str):
     status = audio_processor.get_task_status(task_id)
+    logger.info(f"Status request for task {task_id}: {status}")
     if status is None:
         raise HTTPException(status_code=404, detail="Task not found")
     return {"task_id": task_id, "status": status}
