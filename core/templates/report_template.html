@@ -8,6 +8,7 @@
         body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
         h1, h2 { color: #333; }
         pre { background-color: #f4f4f4; padding: 10px; border-radius: 5px; }
+        .error { color: red; }
     </style>
 </head>
 <body>
@@ -16,19 +17,14 @@
     <h3>Status: {{ status }}</h3>
     
     <h2>Configuration</h2>
-    <pre>{{ config | format_json }}</pre>
+    <pre>{{ config | format_json | default('Unable to format configuration', true) }}</pre>
     
     <h2>Results</h2>
     {% for result in results %}
         <h3>Analysis {{ loop.index }}</h3>
-        <pre>
-        {% try %}
-            {{ result | format_json }}
-        {% except Exception as e %}
-            Error formatting result: {{ e }}
-            Raw result: {{ result }}
-        {% endtry %}
-        </pre>
+        <pre>{{ result | format_json | default('Unable to format result', true) }}</pre>
+    {% else %}
+        <p>No results available.</p>
     {% endfor %}
 </body>
 </html>
