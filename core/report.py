@@ -3,6 +3,7 @@ from typing import Dict, Any
 from jinja2 import Environment, FileSystemLoader
 import json
 from json import JSONEncoder
+import numpy as np
 
 class AdvancedJSONEncoder(json.JSONEncoder):
     def default(self, obj):
