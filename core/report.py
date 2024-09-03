@@ -4,14 +4,23 @@ from jinja2 import Environment, FileSystemLoader
 import json
 from json import JSONEncoder
 
-class CustomJSONEncoder(json.JSONEncoder):
+class AdvancedJSONEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, bool):
-            return bool(obj) 
-        return super().default(obj)
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        elif isinstance(obj, (bool, np.bool_)):
+            return bool(obj)
+        elif isinstance(obj, (set, frozenset)):
+            return list(obj)
+        return super(AdvancedJSONEncoder, self).default(obj)
 
 def format_json(data):
-    return json.dumps(data, indent=2, sort_keys=True, cls=CustomJSONEncoder)
+    return json.dumps(data, indent=2, sort_keys=True, cls=AdvancedJSONEncoder)
+
 
 def generate_html_report(task_id: str, results: Dict[str, Any]) -> str:
     """
@@ -40,6 +49,9 @@ def generate_html_report(task_id: str, results: Dict[str, Any]) -> str:
         'status': results.get('status', 'Unknown'),
         'results': results.get('results', [])
     }
+    
+    # Debug: Print the report data before rendering
+    print("Report data:", format_json(report_data))
     
     html_content = template.render(report_data)
     

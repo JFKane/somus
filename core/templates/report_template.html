@@ -21,7 +21,14 @@
     <h2>Results</h2>
     {% for result in results %}
         <h3>Analysis {{ loop.index }}</h3>
-        <pre>{{ result | format_json }}</pre>
+        <pre>
+        {% try %}
+            {{ result | format_json }}
+        {% except Exception as e %}
+            Error formatting result: {{ e }}
+            Raw result: {{ result }}
+        {% endtry %}
+        </pre>
     {% endfor %}
 </body>
 </html>
