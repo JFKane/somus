@@ -8,7 +8,7 @@ import librosa
 
 logger = logging.getLogger(__name__)
 
-class AudioProcessor:
+class AudioProcessor:    
     def __init__(self, plugin_manager):
         self.plugin_manager = plugin_manager
         self.tasks = {}
@@ -21,6 +21,12 @@ class AudioProcessor:
             "results": []
         }
 
+        # Start processing in a separate task
+        asyncio.create_task(self._process_audio_task(config, task_id, update_callback))
+
+        return {"task_id": task_id, "status": "started"}
+
+    async def _process_audio_task(self, config: Dict[str, Any], task_id: str, update_callback: Callable):
         try:
             audio_resource = config['audio_resource']
             logger.info(f"Loading audio from: {audio_resource}")
@@ -40,22 +46,20 @@ class AudioProcessor:
             frequency = config.get('frequency', 1)
             logger.info(f"Audio loaded. Processing {len(audio)} samples")
 
-
             for i in range(0, len(audio), chunk_size):
                 chunk = audio[i:i+chunk_size]
-                await self.process_chunk(chunk, config['plugins'], task_id, update_callback)
+                results = await self.process_chunk(chunk, config['plugins'], task_id, update_callback)
+                self.tasks[task_id]["results"].append(results)
                 await asyncio.sleep(frequency)
-            
+
             logger.info(f"Finished processing audio for task: {task_id}")
             self.tasks[task_id]["status"] = "completed"
 
         except Exception as e:
             logger.error(f"Error in audio processing task {task_id}: {str(e)}")
             self.tasks[task_id]["status"] = "error"
-        else:
-            self.tasks[task_id]["status"] = "completed"
 
-        logger.info(f"Audio processing task completed: {task_id}")
+        await update_callback({"task_id": task_id, "status": self.tasks[task_id]["status"]})
 
     async def process_chunk(self, audio_chunk: np.ndarray, plugins: List[Dict[str, Any]], task_id: str, update_callback: Callable):
         results = {}
@@ -73,8 +77,7 @@ class AudioProcessor:
             else:
                 logger.warning(f"Plugin not found: {plugin_name}")
 
-        self.tasks[task_id]["results"].append(results)
-        await update_callback({"task_id": task_id, "results": results})
+        return results
 
     def stop_task(self, task_id: str) -> bool:
         if task_id in self.tasks:

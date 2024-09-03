@@ -4,15 +4,14 @@ from jinja2 import Environment, FileSystemLoader
 import json
 from json import JSONEncoder
 
-class CustomJSONEncoder(JSONEncoder):
+class CustomJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, bool):
-            return str(obj)
-        return JSONEncoder.default(self, obj)
+            return bool(obj) 
+        return super().default(obj)
 
 def format_json(data):
     return json.dumps(data, indent=2, sort_keys=True, cls=CustomJSONEncoder)
-
 
 def generate_html_report(task_id: str, results: Dict[str, Any]) -> str:
     """
