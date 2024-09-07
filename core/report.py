@@ -40,7 +40,7 @@ def generate_html_report(task_id: str, results: Dict[str, Any]) -> str:
     logger.info(f"Generating report for task: {task_id}")
     
     # Create a directory for reports if it doesn't exist
-    report_dir = "reports"
+    report_dir = "recordings"
     os.makedirs(report_dir, exist_ok=True)
     
     # Set up Jinja2 environment
